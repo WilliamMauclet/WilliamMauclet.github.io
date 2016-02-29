@@ -3,81 +3,121 @@
 <head>
 	<meta charset="UTF-8">
 	<title>SpaceHunt</title>
-	
-	<!-- <style>
-		.rotate90 {
-			-webkit-transform: rotate(90deg);
-			-moz-transform: rotate(90deg);
-			-o-transform: rotate(90deg);
-			-ms-transform: rotate(90deg);
-			transform: rotate(90deg);
-		} 
-	</style> -->
 </head>
 <body>	
-<img src="background.png" alt="" height="600" width="900">
+<img src="background.png" id="arena" alt="" height="600" width="900">
 
-<img src="spaceship2.gif" id="spaceship" height = "32" width="32" style="position:absolute; top:35px; left:170px">
+<img src="spaceship2.gif" id="spaceshipImg" height="32" width="32" style="position:absolute; top:35px; left:170px">
+
+<img src="droneLeft.gif" id="drone0" height="32" width="32" style="position:absolute; top:35px; left:170px">
+<img src="droneRight.gif" id="drone1" height="32" width="32" style="position:absolute; top:35px; left:170px">
+<img src="droneLeft.gif" id="drone2" height="32" width="32" style="position:absolute; top:35px; left:170px">
+<img src="droneRight.gif" id="drone3" height="32" width="32" style="position:absolute; top:35px; left:170px">
 
 <script>
-	spaceship = {
-		x: 35,
-		y: 170
-	}
-
-	document.onkeydown = movement;
+spaceship = {
+	x: 35,
+	y: 170,
+	orientation: 0,
+	instantSpeed: 2,
+	previousOrientation:0,
+	image: document.getElementById("spaceshipImg"),
 	
-	var player = document.getElementById("spaceship");
-	var orientation = 0;
+	redrawShip: function(){
+		spaceship.image.style.top = spaceship.x + "px";
+		spaceship.image.style.left = spaceship.y + "px";
+		rotate(spaceship.image, -spaceship.orientation); 
+	},
 	
-	function init(){
-		
-	
-		player.style = "position:absolute; top:35px; left:170px";
-		player.orientation = "
-	}
-	
-
-	function movement(e) {
+	movement: function(e) {
 		// inertia!
-		// rotation!
 		e = e || window.event;
-		if (e.keyCode == '38') {
-			player.style.top  = parseInt(player.style.top) - 2 + 'px';
+		switch(e.keyCode){
+			case 38: //forward
+				spaceship.x -= Math.cos(toRadians(spaceship.orientation))*spaceship.instantSpeed;
+				spaceship.y -= Math.sin(toRadians(spaceship.orientation))*spaceship.instantSpeed;
+				break;
+			case 40: // backward
+				spaceship.x += Math.cos(toRadians(spaceship.orientation))*spaceship.instantSpeed;
+				spaceship.y += Math.sin(toRadians(spaceship.orientation))*spaceship.instantSpeed;
+				break;
+			case 37: // turn left
+				spaceship.orientation += 9;
+				break;
+			case 39: // turn right
+				spaceship.orientation -= 9;
+				break;
+			case 32:
+				console.log('space');
+				break;
 		}
-		else if (e.keyCode == '40') {
-			player.style.top  = parseInt(player.style.top) + 2 + 'px';
-		}
-		else if (e.keyCode == '37') {
-			orientation -= 5;
-			rotate(player, orientation);
-			
-		}
-		else if (e.keyCode == '39') {
-			orientation += 5;
-			rotate(player, orientation);
-		}
+		moduloCoords(spaceship);
+		spaceship.redrawShip();
 	}
+}
+
+function moduloCoords(elem) {
+	elem.x = moduloValue(elem.x, parseInt(document.getElementById("arena").height));
+	elem.y = moduloValue(elem.y, parseInt(document.getElementById("arena").width));
+	elem.orientation = moduloAngle(elem.orientation);
+}
+
+function moduloValue(value, mod) {
+	return ((value%mod)+mod)%mod;
+}
+
+function moduloAngle(degrees){
+	return moduloValue(degrees, 360);	
+}
+
+function toRadians(degrees){
+	return degrees * Math.PI / 180;
+}
+
+function rotate(elem, degrees) {
+	if(navigator.userAgent.match("Chrome"))
+		elem.style.WebkitTransform = "rotate("+degrees+"deg)";
+	else if(navigator.userAgent.match("Firefox"))
+		elem.style.MozTransform = "rotate("+degrees+"deg)";
+	else if(navigator.userAgent.match("MSIE"))
+		elem.style.msTransform = "rotate("+degrees+"deg)";
+	else if(navigator.userAgent.match("Opera"))
+		elem.style.OTransform = "rotate("+degrees+"deg)";
+	else 
+		elem.style.transform = "rotate("+degrees+"deg)";
+}
+
+var droneSpeed = 1;
+
+function moveDrone(elem){
+	// moveDrone or move? => first learn about prototypes/classes
 	
-	function rotate(elem, degrees) {
-		if(navigator.userAgent.match("Chrome")){
-			elem.style.WebkitTransform = "rotate("+degrees+"deg)";
-		} else if(navigator.userAgent.match("Firefox")){
-			elem.style.MozTransform = "rotate("+degrees+"deg)";
-		} else if(navigator.userAgent.match("MSIE")){
-			elem.style.msTransform = "rotate("+degrees+"deg)";
-		} else if(navigator.userAgent.match("Opera")){
-			elem.style.OTransform = "rotate("+degrees+"deg)";
-		} else {
-			elem.style.transform = "rotate("+degrees+"deg)";
-		}
-	}
 	
-	function translate(elem, orientation, forward){
-		elem.
-	}
-	
-	
+}
+
+// constructor for drone
+// constructor: capital letter
+function Drone(index){
+	this.x = index*30;
+	this.y = index*30;
+	this.orientation = 180;
+	this.image = document.getElementById("drone"+index);
+}
+
+var drones = [];
+for(i = 0; i < 4; i++)
+	drones.push(new Drone(i));
+
+function init(){
+}
+
+function gameLoop(){
+	document.onkeydown = spaceship.movement;
+	setTimeout("gameLoop()",10);
+}
+init();
+gameLoop()
+
 </script>
 
 
