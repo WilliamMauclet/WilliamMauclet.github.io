@@ -6,75 +6,213 @@
 </head>
 <body>	
 <img src="background.png" id="arena" alt="" height="600" width="900">
-
 <img src="spaceship2.gif" id="spaceshipImg" height="32" width="32" style="position:absolute; top:35px; left:170px">
-
 <img src="droneLeft.gif" id="drone0" height="32" width="32" style="position:absolute; top:35px; left:170px">
 <img src="droneRight.gif" id="drone1" height="32" width="32" style="position:absolute; top:35px; left:170px">
 <img src="droneLeft.gif" id="drone2" height="32" width="32" style="position:absolute; top:35px; left:170px">
 <img src="droneRight.gif" id="drone3" height="32" width="32" style="position:absolute; top:35px; left:170px">
+<img src="explosion.gif" id="exp" height="32" width="32" style="position:absolute; top:300px; left:300px">
 
 <script>
-spaceship = {
-	x: 35,
-	y: 170,
-	orientation: 0,
-	instantSpeed: 2,
-	previousOrientation:0,
-	image: document.getElementById("spaceshipImg"),
+<!-----------------------------------------INITIALISATION----------------------------------------------------->
+// Do we need a constructor for spaceship? No!
+var spaceship = new Movable(500, 500, 0, 2, 9, document.getElementById("spaceshipImg"));
+var drones = [];
+for(i = 0; i < 4; i++)
+	drones.push(new Drone(i));
 	
-	redrawShip: function(){
-		spaceship.image.style.top = spaceship.x + "px";
-		spaceship.image.style.left = spaceship.y + "px";
-		rotate(spaceship.image, -spaceship.orientation); 
-	},
+var patrolPoint = {
+	x: 300,
+	y: 300
+}
+<!------------------------------------------INITIALISATION----------------------------------------------------->
+
+
+<!-----------------------------------------GAME FUNCTIONS------------------------------------------------------>
+function init(){
+	var ix;
+	for(ix in drones)
+		drones[ix].redraw();
+	spaceship.redraw();
+}
+
+function gameLoop(){
+	document.onkeydown = spaceship.move; //TODO needed?
+	//for(xyx in drones)
+		drones[1].move();	
 	
-	movement: function(e) {
+	setTimeout("gameLoop()",50);	
+}
+init();
+//for(i=0;i<80;i++)
+	gameLoop();
+<!------------------------------------------GAME FUNCTIONS---------------------------------------------------->
+
+
+<!-------------------------------------------PROTOTYPES------------------------------------------------------->
+function Movable(x, y, orientation, speed, rotationSpeed, image) {
+	// abstract prototype of spaceship & drones
+	this.x = x;
+	this.y = y;
+	this.orientation = moduloAngle(orientation);
+	this.speed = Math.abs(speed);
+	this.rotationSpeed = Math.abs(rotationSpeed);
+	this.image = image;
+	
+	this.translate = function(forNotBackwards) {
+		this.x += Math.cos(toRadians(this.orientation))*this.speed*(forNotBackwards?1:-1);
+		this.y += Math.sin(toRadians(this.orientation))*this.speed*(forNotBackwards?1:-1);
+		reModuloCoords(this);
+		this.redraw();
+	};
+	
+	this.rotate = function(leftNotRight) {
+		this.orientation += this.rotationSpeed*(leftNotRight?1:-1);
+		reModuloCoords(this);
+		this.redraw();
+	};
+	
+	this.redraw = function(){
+		this.image.style.top = this.x + "px";
+		this.image.style.left = this.y + "px";
+		rotateImage(this.image, -moduloAngle(this.orientation+180)); 
+	};
+}
+
+// DRONE
+function Drone(index){
+	// constructor for drone
+	Movable.call(this, index*30, index*120, 0, 1, 5,  document.getElementById("drone"+index));
+	
+	this.mew = function(){
+		console.log(this.x);
+	};
+		
+	this.move = function(){
+		if(this.spaceshipInSight())//chase
+			this.goTo(spaceship);
+		else // patrol 
+			this.goPatrol();
+	}; 
+	
+	this.spaceshipInSight = function(){
+		var lineOfSight = 0;
+		return distance(this, spaceship)<lineOfSight;
+	};
+	
+	this.goTo = function(coord) {
+		//calculate  and in directionwhich direction to rotate
+		var xDiff = coord.x - this.x;
+		var yDiff = coord.y - this.y;
+		
+		
+		console.log("this.x=" + this.x + " this.y= " + this.y);
+		console.log("xdiff=" + xDiff + "  yDiff=" + yDiff);
+		
+		// calculate 
+		var angleToFollow = toDegrees(Math.atan(yDiff/xDiff));
+		
+		// Rotation to follow correctly
+		var angleDiff = moduloAngle(angleToFollow - this.orientation);
+		console.log("To follow:" + angleToFollow + " diff:" +angleDiff + " myAngle:" + this.orientation );
+		if(Math.abs(angleDiff)>=5){
+			console.log("rotate" + (angleDiff>0?"left":"right"));
+			this.rotate(angleDiff>0);
+			}
+		else if(distance(this, coord)<5){
+			console.log("chilling");
+		}
+		else{
+			console.log(Math.abs(angleDiff)<90?"forward":"backward");
+			// Movement: forwards or backwards?
+			// Forwards if going forward would bring you closer, else not.
+			this.translate(Math.abs(angleDiff)<90); //=>stupid
+			}
+	};
+	
+	this.goPatrol = function(){
+	
+		if(distance(this,patrolPoint)>100){ 
+			// drone too far to circle patrolPoint: go to it.
+			this.goTo(patrolPoint);
+			return;
+		}
+		console.log("circling around");
+		var xDiff = patrolPoint.x - this.x;
+		var yDiff = patrolPoint.y - this.y;
+		// angle to follow is orthogonal to the distance-vector,
+		// +90 => counterclockwise
+		var angleToFollow = toDegrees(Math.atan(yDiff/xDiff))+90;
+		var angleDiff = moduloAngle(angleToFollow - this.orientation);
+		console.log(angleDiff);
+		if(Math.abs(angleDiff)>5)
+			this.rotate(angleDiff>0);
+		else
+			this.translate(true);
+	}
+} 
+// see:  http://stackoverflow.com/questions/13040684/javascript-inheritance-object-create-vs-new
+// necessary for inheritance => without it:
+//	console.log(new Drone()	instanceof Movable); => "false"
+Drone.prototype = new Movable();
+
+// SPACESHIP
+spaceship.move = function(e){
+		//THIS FUNCTION IS TRAVERSED BY document.onkeydown!!! => "this" is not spaceship
 		// inertia!
 		e = e || window.event;
 		switch(e.keyCode){
-			case 38: //forward
-				spaceship.x -= Math.cos(toRadians(spaceship.orientation))*spaceship.instantSpeed;
-				spaceship.y -= Math.sin(toRadians(spaceship.orientation))*spaceship.instantSpeed;
+			case 38: 
+				//forward
+				spaceship.translate(true);
 				break;
 			case 40: // backward
-				spaceship.x += Math.cos(toRadians(spaceship.orientation))*spaceship.instantSpeed;
-				spaceship.y += Math.sin(toRadians(spaceship.orientation))*spaceship.instantSpeed;
+				spaceship.translate(false);
 				break;
 			case 37: // turn left
-				spaceship.orientation += 9;
+				spaceship.rotate(true);
 				break;
 			case 39: // turn right
-				spaceship.orientation -= 9;
+				spaceship.rotate(false);
 				break;
 			case 32:
 				console.log('space');
 				break;
 		}
-		moduloCoords(spaceship);
-		spaceship.redrawShip();
-	}
 }
+<!------------------------------------------PROTOTYPES----------------------------------------------------->
 
-function moduloCoords(elem) {
+
+<!---------------------------------------GENERAL NEED FUNCTIONS----------------------------------------------->
+function reModuloCoords(elem) { // with side-effect!
 	elem.x = moduloValue(elem.x, parseInt(document.getElementById("arena").height));
 	elem.y = moduloValue(elem.y, parseInt(document.getElementById("arena").width));
 	elem.orientation = moduloAngle(elem.orientation);
+}
+
+function moduloAngle(degrees){
+	return ((degrees+180)%360)-180;
 }
 
 function moduloValue(value, mod) {
 	return ((value%mod)+mod)%mod;
 }
 
-function moduloAngle(degrees){
-	return moduloValue(degrees, 360);	
+function distance(pointA, pointB){
+	var xDiff = pointB.x - pointA.x;
+	var yDiff = pointB.y - pointA.y;
+	return Math.sqrt(Math.pow(xDiff,2)+Math.pow(yDiff,2));
 }
 
 function toRadians(degrees){
 	return degrees * Math.PI / 180;
 }
 
-function rotate(elem, degrees) {
+function toDegrees(radians){
+	return radians * 180 / Math.PI;
+}
+
+function rotateImage(elem, degrees) {
 	if(navigator.userAgent.match("Chrome"))
 		elem.style.WebkitTransform = "rotate("+degrees+"deg)";
 	else if(navigator.userAgent.match("Firefox"))
@@ -86,38 +224,7 @@ function rotate(elem, degrees) {
 	else 
 		elem.style.transform = "rotate("+degrees+"deg)";
 }
-
-var droneSpeed = 1;
-
-function moveDrone(elem){
-	// moveDrone or move? => first learn about prototypes/classes
-	
-	
-}
-
-// constructor for drone
-// constructor: capital letter
-function Drone(index){
-	this.x = index*30;
-	this.y = index*30;
-	this.orientation = 180;
-	this.image = document.getElementById("drone"+index);
-}
-
-var drones = [];
-for(i = 0; i < 4; i++)
-	drones.push(new Drone(i));
-
-function init(){
-}
-
-function gameLoop(){
-	document.onkeydown = spaceship.movement;
-	setTimeout("gameLoop()",10);
-}
-init();
-gameLoop()
-
+<!------------------------------------------GENERAL NEED FUNCTIONS-------------------------------------------->
 </script>
 
 
