@@ -11,7 +11,9 @@ This project is open source.
 
 Things to program:
 
-|<b>TODO</b>								|	<b>STATUS</b>	|
+
+|          TODO								|	STATUS			|
+| ------------------------------------------|:-----------------:| 
 |* Canvas with background 					|	DONE			|
 |* Spaceship 								|	DONE			|
 |  * Pixel spaceship 						|	DONE			|
