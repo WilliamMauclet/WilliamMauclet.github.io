@@ -1,4 +1,4 @@
-# SPACE-JAGER
+# RUIMTEJAGER
 
 A small game-project to learn JavaScript.
 
@@ -13,22 +13,22 @@ Things to program:
 
 *Canvas with background 
 *Spaceship 
-..*Pixel spaceship 
-..*Can move 
-..*Moves with spatial inertia 
+  *Pixel spaceship 
+  *Can move 
+  *Moves with spatial inertia 
 *Enemy 
-..*Structure 
-..*Drones 
-....*Fly around structure 
-....*Are slower than spaceship 
-....*Move and shoot towards spaceship 
-....*If collision with spaceship: hit 
-....*Rockets/Laser of structure: hit 
+  *Structure 
+  *Drones 
+    *Fly around structure 
+    *Are slower than spaceship 
+    *Move and shoot towards spaceship 
+    *If collision with spaceship: hit 
+    *Rockets/Laser of structure: hit 
 *When hit 
-....*Explosion animation 
-......*If player 
-........*Lives-- 
-..........*if Lives==0: Game over 
+    *Explosion animation 
+      *If player 
+        *Lives-- 
+          *if Lives==0: Game over 
 *Radar 
 *zooming
 
