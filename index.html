@@ -16,7 +16,7 @@
 <script>
 <!-----------------------------------------INITIALISATION----------------------------------------------------->
 // Do we need a constructor for spaceship? No!
-var spaceship = new Movable(500, 500, 0, 2, 9, document.getElementById("spaceshipImg"));
+var spaceship = new Movable(500, 500, 0, 4, 15, document.getElementById("spaceshipImg"));
 var drones = [];
 for(i = 0; i < 4; i++)
 	drones.push(new Drone(i));
@@ -38,10 +38,10 @@ function init(){
 
 function gameLoop(){
 	document.onkeydown = spaceship.move; //TODO needed?
-	//for(xyx in drones)
-		drones[1].move();	
+	for(xyx in drones)
+		drones[xyx].move();	
 	
-	setTimeout("gameLoop()",50);	
+	setTimeout("gameLoop()",2);	
 }
 init();
 //for(i=0;i<80;i++)
@@ -79,24 +79,37 @@ function Movable(x, y, orientation, speed, rotationSpeed, image) {
 	};
 }
 
+// LASERBOLT
+function LaserBolt(x,y,){
+	Movable.call(this, index*30, index*120, 0, 2, 5,  document.getElementById("drone"+index));
+
+}
+
+// ROCKET
+function Rocket(){
+
+}
+
 // DRONE
 function Drone(index){
 	// constructor for drone
-	Movable.call(this, index*30, index*120, 0, 1, 5,  document.getElementById("drone"+index));
+	Movable.call(this, index*30, index*120, 0, 2, 5,  document.getElementById("drone"+index));
 	
 	this.mew = function(){
-		console.log(this.x);
+		//console.log(this.x);
 	};
 		
 	this.move = function(){
-		if(this.spaceshipInSight())//chase
+		if(this.spaceshipInSight()){//chase
+			//console.log("drone: go to spaceship");
 			this.goTo(spaceship);
+		}
 		else // patrol 
 			this.goPatrol();
 	}; 
 	
 	this.spaceshipInSight = function(){
-		var lineOfSight = 0;
+		var lineOfSight = 100;
 		return distance(this, spaceship)<lineOfSight;
 	};
 	
@@ -106,24 +119,25 @@ function Drone(index){
 		var yDiff = coord.y - this.y;
 		
 		
-		console.log("this.x=" + this.x + " this.y= " + this.y);
+		////console.log("this.x=" + this.x + " this.y= " + this.y);
 		console.log("xdiff=" + xDiff + "  yDiff=" + yDiff);
 		
 		// calculate 
-		var angleToFollow = toDegrees(Math.atan(yDiff/xDiff));
+		var angleToFollow = toDegrees(Math.atan2(yDiff,xDiff));
 		
 		// Rotation to follow correctly
 		var angleDiff = moduloAngle(angleToFollow - this.orientation);
-		console.log("To follow:" + angleToFollow + " diff:" +angleDiff + " myAngle:" + this.orientation );
+		console.log("to follow: " + angleToFollow);
+		////console.log("To follow:" + angleToFollow + " diff:" +angleDiff + " myAngle:" + this.orientation );
 		if(Math.abs(angleDiff)>=5){
-			console.log("rotate" + (angleDiff>0?"left":"right"));
+			////console.log("rotate" + (angleDiff>0?"left":"right"));
 			this.rotate(angleDiff>0);
 			}
 		else if(distance(this, coord)<5){
-			console.log("chilling");
+			//console.log("chilling");
 		}
 		else{
-			console.log(Math.abs(angleDiff)<90?"forward":"backward");
+			////console.log(Math.abs(angleDiff)<90?"forward":"backward");
 			// Movement: forwards or backwards?
 			// Forwards if going forward would bring you closer, else not.
 			this.translate(Math.abs(angleDiff)<90); //=>stupid
@@ -131,29 +145,38 @@ function Drone(index){
 	};
 	
 	this.goPatrol = function(){
-	
-		if(distance(this,patrolPoint)>100){ 
+		var dist = distance(this,patrolPoint);
+		if(dist>100){ 
 			// drone too far to circle patrolPoint: go to it.
+			//console.log("drone" + this.index + ": patrol: go to patrolPoint (distance:" + dist);
 			this.goTo(patrolPoint);
 			return;
 		}
-		console.log("circling around");
+		
 		var xDiff = patrolPoint.x - this.x;
 		var yDiff = patrolPoint.y - this.y;
 		// angle to follow is orthogonal to the distance-vector,
 		// +90 => counterclockwise
-		var angleToFollow = toDegrees(Math.atan(yDiff/xDiff))+90;
+		//var angleToFollow = toDegrees(Math.atan(yDiff/xDiff))+90;
+		
+		var angleToFollow = 90 + toDegrees(Math.atan2(yDiff,xDiff));
 		var angleDiff = moduloAngle(angleToFollow - this.orientation);
-		console.log(angleDiff);
-		if(Math.abs(angleDiff)>5)
+		
+		
+		//console.log(angleToFollow);
+		if(Math.abs(angleDiff)>5) {
+			////console.log("drone" + this.circle + ": patrol: circle: ROTATE");
 			this.rotate(angleDiff>0);
-		else
+		}
+		else {
+			//console.log("drone" + this.circle + ": patrol: circle: TRANSLATE");
 			this.translate(true);
+		}
 	}
 } 
 // see:  http://stackoverflow.com/questions/13040684/javascript-inheritance-object-create-vs-new
 // necessary for inheritance => without it:
-//	console.log(new Drone()	instanceof Movable); => "false"
+//	//console.log(new Drone()	instanceof Movable); => "false"
 Drone.prototype = new Movable();
 
 // SPACESHIP
@@ -176,7 +199,7 @@ spaceship.move = function(e){
 				spaceship.rotate(false);
 				break;
 			case 32:
-				console.log('space');
+				//console.log('space');
 				break;
 		}
 }
@@ -190,6 +213,7 @@ function reModuloCoords(elem) { // with side-effect!
 	elem.orientation = moduloAngle(elem.orientation);
 }
 
+// Returns a value between -180 and 180
 function moduloAngle(degrees){
 	return ((degrees+180)%360)-180;
 }
