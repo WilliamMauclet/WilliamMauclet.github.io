@@ -12,27 +12,26 @@ This project is open source.
 Things to program:
 
 
-|          TODO								|	STATUS			|
-| ------------------------------------------|:-----------------:| 
-|* Canvas with background 					|	DONE			|
-|* Spaceship 								|	DONE			|
-|  * Pixel spaceship 						|	DONE			|
-|  * Can move 								|	DONE			|
-|  * Moves with spatial inertia 			|	-				|
-|* Enemy 									|	-				|
-|  * Structure 								|	-				|
-|  * Drones 								|	DONE			|
-|    * Fly circle patrol		 			|	-				|
-|    * Are slower than spaceship 			|	DONE			|
-|    * Move and shoot towards spaceship 	|	1/2				|
-|    * If collision with spaceship: hit 	|	-				|
-|    * Rockets/Laser of structure: hit 		|	-				|
-|* When hit 								|	-				|
-|    * Explosion animation 					| 	-				|
-|      * If player 							|	-				|
-|        * Lives-- 							|	-				|
-|          * if Lives==0: Game over 		|	-				|
-|* Radar 									|	-				|
-|* zooming									|	-				|
+|          TODO							|	STATUS			|
+| --------------------------------------|:-----------------:| 
+| Canvas with background 				|	DONE			|
+| Spaceship 							|	DONE			|
+| Pixel spaceship 						|	DONE			|
+| Can move 								|	DONE			|
+| Moves with spatial inertia 			|	-				|
+| Enemy 								|	-				|
+| Structure 							|	-				|
+| Drones 								|	DONE			|
+| Fly circle patrol		 				|	-				|
+| Are slower than spaceship 			|	DONE			|
+| Move and shoot towards spaceship 		|	1/2				|
+| If collision with spaceship: hit 		|	-				|
+| Rockets/Laser of structure: hit 		|	-				|
+| When hit 								|	-				|
+| Explosion animation 					| 	-				|
+| If player: Lives-- 					|	-				|
+| if Lives==0: Game over 				|	-				|
+| Radar 								|	-				|
+| zooming								|	-				|
 
 	
