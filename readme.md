@@ -15,20 +15,20 @@ Things to program:
 |          TODO							|	STATUS			|
 | --------------------------------------|:-----------------:| 
 | Canvas with background 				|	DONE			|
-| Spaceship 							|	DONE			|
+| **Spaceship** 						|					|
 | Pixel spaceship 						|	DONE			|
 | Can move 								|	DONE			|
 | Moves with spatial inertia 			|	-				|
-| Enemy 								|	-				|
+| **Enemy** 							|					|
 | Structure 							|	-				|
 | Drones 								|	DONE			|
 | Fly circle patrol		 				|	-				|
 | Are slower than spaceship 			|	DONE			|
 | Move and shoot towards spaceship 		|	1/2				|
+| **Collision**							|					|
 | If collision with spaceship: hit 		|	-				|
 | Rockets/Laser of structure: hit 		|	-				|
-| When hit 								|	-				|
-| Explosion animation 					| 	-				|
+| When hit: explosion animation 		| 	-				|
 | If player: Lives-- 					|	-				|
 | if Lives==0: Game over 				|	-				|
 | Radar 								|	-				|

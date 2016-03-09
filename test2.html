@@ -33,7 +33,6 @@
 <script>
 <!-----------------------------------------INITIALISATION----------------------------------------------------->
 // Do we need a constructor for spaceship? No!
-var collidables = [];
 var spaceship = new Movable(500, 500, 0, 4, 15, document.getElementById("spaceshipImg"));
 var drones = [];
 for(i = 0; i < 4; i++)
@@ -45,23 +44,34 @@ var patrolPoint = {
 	x: 300,
 	y: 300
 }
-var gameOver = false;
 <!------------------------------------------INITIALISATION----------------------------------------------------->
 
 
 <!-----------------------------------------GAME FUNCTIONS------------------------------------------------------>
+var keystate;
 function init(){
 	var ix;
 	for(ix in drones)
 		drones[ix].redraw();
 	spaceship.redraw();
+	
+	keystate = {};
+	// keep track of keyboard presses
+	document.addEventListener("keydown", function(evt) {
+		keystate[evt.keyCode] = true;
+	});
+	document.addEventListener("keyup", function(evt) {
+		delete keystate[evt.keyCode];
+	});
 }
 
 function gameLoop(){
 	
 	document.getElementById("arena").style.zIndex="-1";	
 	
-	//document.getElementById("arena").style.visibility="hidden";
+	document.getElementById("arena").style.visibility="hidden";
+	
+	
 	
 	document.onkeydown = spaceship.move; //TODO needed?
 	for(xyx in drones)
@@ -69,42 +79,11 @@ function gameLoop(){
 	for(xyx in laserBolts)
 		laserBolts[xyx].move();
 	
-	checkForCollisions();
-	
-	if(!gameOver)
-		setTimeout("gameLoop()",0.1);	
-	else
-		console.log("GAME OVER");
+	setTimeout("gameLoop()",0.1);	
 }
 init();
 setTimeout("gameLoop()",1);	
 //gameLoop();
-
-function checkForCollisions(){
-	for(coll1 in collidables){
-		for(coll2 = parseInt(coll1)+1; coll2<collidables.length; coll2++){
-			if(coll12=collidables.length)
-				continue;
-			if(distance(collidables[coll1], collidables[coll2]) < 10){
-				console.log("collision between: " +  collidables[coll1] + " & " +  collidables[coll2]);
-				collidables[coll1].disappear();
-				collidables[coll2].disappear();
-				//  collidables[coll1] &  collidables[coll2] => delete
-				// explosion.gif animation
-				
-				var img = document.createElement("img");
-				img.src = "explosion.gif";
-				var src = document.getElementById("firt");
-				src.appendChild(img);
-				
-				img.style.zIndex="1";
-				img.style="position:absolute";
-				img.style.top=collidables[coll1].x;
-				img.style.left=collidables[coll1].y;
-			}
-		}
-	}
-}
 <!------------------------------------------GAME FUNCTIONS---------------------------------------------------->
 
 
@@ -117,8 +96,6 @@ function Movable(x, y, orientation, speed, rotationSpeed, image) {
 	this.speed = Math.abs(speed);
 	this.rotationSpeed = Math.abs(rotationSpeed);
 	this.image = image;
-	// Add to collidables
-	collidables.push(this);
 	
 	this.translate = function(forNotBackwards) {
 		this.x += Math.cos(toRadians(this.orientation))*this.speed*(forNotBackwards?1:-1);
@@ -138,13 +115,6 @@ function Movable(x, y, orientation, speed, rotationSpeed, image) {
 		this.image.style.left = this.y + "px";
 		rotateImage(this.image, -moduloAngle(this.orientation+180)); 
 	};
-	// destructor
-	this.disappear = function(){
-		//remove from collidables
-		this.splice(collidables.indexOf(this),1);
-		//hide image
-		this.image.style.visibility = "hidden";
-	};
 }
 
 // LASERBOLT
@@ -162,6 +132,7 @@ function LaserBolt(x,y,direction){
 	this.distanceTravelled = 0;
 	
 	this.move = function(){
+		console.log("moving with distance: " + this.distanceTravelled + " " + this.speed);
 		if(this.distanceTravelled >= 300){
 			//remove image
 			document.getElementById("firt").removeChild(img);
@@ -175,7 +146,6 @@ function LaserBolt(x,y,direction){
 			this.distanceTravelled += this.speed;
 		}
 	}
-	
 }
 LaserBolt.prototype = new Movable();
 
@@ -274,34 +244,26 @@ function Drone(index){
 Drone.prototype = new Movable();
 
 // SPACESHIP
-spaceship.move = function(e){
+spaceship.move = function(){
 		//THIS FUNCTION IS TRAVERSED BY document.onkeydown!!! => "this" is not spaceship
 		// inertia!
-		e = e || window.event;
-		switch(e.keyCode){
-			case 38: 
-				//forward
-				spaceship.translate(true);
-				break;
-			case 40: // backward
-				spaceship.translate(false);
-				break;
-			case 37: // turn left
-				spaceship.rotate(true);
-				break;
-			case 39: // turn right
-				spaceship.rotate(false);
-				break;
-			case 32:
-				console.log('space');
-				laserBolts.push(new LaserBolt(spaceship.x,spaceship.y,spaceship.orientation));
-				break;
+		if(keystate[38])
+			spaceship.translate(true);
+		if(keystate[40])
+			spaceship.translate(true);
+		if(keystate[37])
+			spaceship.rotate(true);
+		if(keystate[39])
+			spaceship.rotate(false);
+		if(keystate[32]){
+			console.log('space');
+			laserBolts.push(new LaserBolt(spaceship.x,spaceship.y,spaceship.orientation));
 		}
 }
 <!------------------------------------------PROTOTYPES----------------------------------------------------->
 
 
-<!---------------------------------------MATHEMATICAL FUNCTIONS----------------------------------------------->
+<!---------------------------------------GENERAL NEED FUNCTIONS----------------------------------------------->
 function reModuloCoords(elem) { // with side-effect!
 	elem.x = moduloValue(elem.x, parseInt(document.getElementById("arena").height));
 	elem.y = moduloValue(elem.y, parseInt(document.getElementById("arena").width));
@@ -343,7 +305,7 @@ function rotateImage(elem, degrees) {
 	else 
 		elem.style.transform = "rotate("+degrees+"deg)";
 }
-<!------------------------------------------MATHEMATICAL FUNCTIONS-------------------------------------------->
+<!------------------------------------------GENERAL NEED FUNCTIONS-------------------------------------------->
 </script>
 
 
