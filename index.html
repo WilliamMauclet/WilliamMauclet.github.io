@@ -27,7 +27,6 @@
 <img src="droneRight.gif" id="drone3" height="32" width="32" style="position:absolute; top:35px; left:170px">
 <!-- <img src="explosion.gif" id="exp" height="32" width="32" style="position:absolute; top:300px; left:300px"> -->
 <!-- TODO -->
-<img src="img/laserBolt.png" id="laserB" height="32" width="32" style="position:absolute">
 
 
 <script>
@@ -83,11 +82,20 @@ setTimeout("gameLoop()",1);
 function checkForCollisions(){
 	for(coll1 in collidables){
 		for(coll2 = parseInt(coll1)+1; coll2<collidables.length; coll2++){
-			if(coll12=collidables.length)
-				continue;
-			if(distance(collidables[coll1], collidables[coll2]) < 10){
-				console.log("collision between: " +  collidables[coll1] + " & " +  collidables[coll2]);
+			if(distance(collidables[coll1], collidables[coll2]) < 20){
+				var xC = collidables[coll1].x,
+					yC = collidables[coll1].y;
+					
+				console.log("collision between: ");
+				console.log(collidables[coll1]);
+				
+				console.log(collidables[coll2]);
 				collidables[coll1].disappear();
+				
+				if(coll1<coll2)
+					coll2--;
+				
+				console.log(collidables[coll2]);
 				collidables[coll2].disappear();
 				//  collidables[coll1] &  collidables[coll2] => delete
 				// explosion.gif animation
@@ -99,8 +107,8 @@ function checkForCollisions(){
 				
 				img.style.zIndex="1";
 				img.style="position:absolute";
-				img.style.top=collidables[coll1].x;
-				img.style.left=collidables[coll1].y;
+				img.style.top=xC + "px";
+				img.style.left=yC + "px";
 			}
 		}
 	}
@@ -141,7 +149,7 @@ function Movable(x, y, orientation, speed, rotationSpeed, image) {
 	// destructor
 	this.disappear = function(){
 		//remove from collidables
-		this.splice(collidables.indexOf(this),1);
+		collidables.splice(collidables.indexOf(this),1);
 		//hide image
 		this.image.style.visibility = "hidden";
 	};
@@ -297,6 +305,14 @@ spaceship.move = function(e){
 				laserBolts.push(new LaserBolt(spaceship.x,spaceship.y,spaceship.orientation));
 				break;
 		}
+}
+
+spaceship.disappear = function(){
+	//remove from collidables
+	collidables.splice(collidables.indexOf(this),1);
+	//hide image
+	this.image.style.visibility = "hidden";
+	gameOver = true;
 }
 <!------------------------------------------PROTOTYPES----------------------------------------------------->
 
