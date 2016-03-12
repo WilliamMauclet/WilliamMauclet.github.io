@@ -32,8 +32,10 @@
 <script>
 <!-----------------------------------------INITIALISATION----------------------------------------------------->
 // Do we need a constructor for spaceship? No!
+var TEAM_GOOD = "Team good",
+	TEAM_BAD = "Team bad";
 var collidables = [];
-var spaceship = new Movable(500, 500, 0, 4, 15, document.getElementById("spaceshipImg"));
+var spaceship = new Movable(500, 500, 0, 4, 15, document.getElementById("spaceshipImg"), TEAM_GOOD);
 var drones = [];
 for(i = 0; i < 4; i++)
 	drones.push(new Drone(i));
@@ -62,7 +64,7 @@ function gameLoop(){
 	
 	//document.getElementById("arena").style.visibility="hidden";
 	
-	document.onkeydown = spaceship.move; //TODO needed?
+	document.onkeydown = spaceship.move; 
 	for(xyx in drones)
 		drones[xyx].move();	
 	for(xyx in laserBolts)
@@ -76,40 +78,36 @@ function gameLoop(){
 		console.log("GAME OVER");
 }
 init();
-setTimeout("gameLoop()",1);	
-//gameLoop();
+setTimeout("gameLoop()", 1);	
 
 function checkForCollisions(){
 	for(coll1 in collidables){
 		for(coll2 = parseInt(coll1)+1; coll2<collidables.length; coll2++){
-			if(distance(collidables[coll1], collidables[coll2]) < 20){
-				var xC = collidables[coll1].x,
-					yC = collidables[coll1].y;
-					
-				console.log("collision between: ");
-				console.log(collidables[coll1]);
-				
-				console.log(collidables[coll2]);
-				collidables[coll1].disappear();
-				
-				if(coll1<coll2)
-					coll2--;
-				
-				console.log(collidables[coll2]);
-				collidables[coll2].disappear();
-				//  collidables[coll1] &  collidables[coll2] => delete
-				// explosion.gif animation
-				
-				var img = document.createElement("img");
-				img.src = "explosion.gif";
-				var src = document.getElementById("firt");
-				src.appendChild(img);
-				
-				img.style.zIndex="1";
-				img.style="position:absolute";
-				img.style.top=xC + "px";
-				img.style.left=yC + "px";
-			}
+		
+			if(distance(collidables[coll1], collidables[coll2]) > 10)
+				continue;
+			if(collidables[coll1].team == collidables[coll2].team)
+				continue;
+			
+			var xC = collidables[coll1].x,
+				yC = collidables[coll1].y;
+							
+			// delete collided
+			collidables[coll1].disappear();			
+			if(coll1<coll2)
+				coll2--;
+			collidables[coll2].disappear();
+			
+			// explosion.gif animation
+			var img = document.createElement("img");
+			img.src = "explosion.gif";
+			var src = document.getElementById("firt");
+			src.appendChild(img);
+			
+			img.style.zIndex="1";
+			img.style="position:absolute";
+			img.style.top=xC + "px";
+			img.style.left=yC + "px";
 		}
 	}
 }
@@ -117,7 +115,7 @@ function checkForCollisions(){
 
 
 <!-------------------------------------------PROTOTYPES------------------------------------------------------->
-function Movable(x, y, orientation, speed, rotationSpeed, image) {
+function Movable(x, y, orientation, speed, rotationSpeed, image, team) {
 	// abstract prototype of spaceship & drones
 	this.x = x;
 	this.y = y;
@@ -126,7 +124,10 @@ function Movable(x, y, orientation, speed, rotationSpeed, image) {
 	this.rotationSpeed = Math.abs(rotationSpeed);
 	this.image = image;
 	// Add to collidables
-	collidables.push(this);
+	if(arguments.length>=2) //2 for x & y
+		collidables.push(this);
+	this.team = team;
+	
 	
 	this.translate = function(forNotBackwards) {
 		this.x += Math.cos(toRadians(this.orientation))*this.speed*(forNotBackwards?1:-1);
@@ -156,7 +157,7 @@ function Movable(x, y, orientation, speed, rotationSpeed, image) {
 }
 
 // LASERBOLT
-function LaserBolt(x,y,direction){
+function LaserBolt(x, y, direction, speed, team){
 	var img = document.createElement("img");
 	img.src = "explosion.gif";
 	var src = document.getElementById("firt");
@@ -165,7 +166,7 @@ function LaserBolt(x,y,direction){
 	img.style.zIndex="1";
 	img.style="position:absolute; top:500px; left:885px";
 	
-	Movable.call(this, x, y, direction, 5, 0,  img);
+	Movable.call(this, x, y, direction, speed, 0,  img, team);
 	
 	this.distanceTravelled = 0;
 	
@@ -195,37 +196,38 @@ function Rocket(){
 // DRONE
 function Drone(index){
 	// constructor for drone
-	Movable.call(this, index*30, index*120, 0, 2, 5,  document.getElementById("drone"+index));
+	Movable.call(this, index*30, index*120, 0, 2, 5,  document.getElementById("drone"+index), TEAM_BAD);
 	
 	this.mew = function(){
 		//console.log(this.x);
 	};
 		
-	this.move = function(){
+	this.move = function(){	
 		if(this.spaceshipInSight()){//chase
 			//console.log("drone: go to spaceship");
 			this.goTo(spaceship);
+			this.shoot(spaceship);
 		}
 		else // patrol 
 			this.goPatrol();
 	}; 
 	
 	this.spaceshipInSight = function(){
-		var lineOfSight = 100;
+		var lineOfSight = 175;
 		return distance(this, spaceship)<lineOfSight;
 	};
 	
-	this.goTo = function(coord) {
+	this.calcAngleToFollow = function(coord){
 		//calculate  and in directionwhich direction to rotate
 		var xDiff = coord.x - this.x;
 		var yDiff = coord.y - this.y;
 		
-		
-		//console.log("this.x=" + this.x + " this.y= " + this.y);
-		//console.log("xdiff=" + xDiff + "  yDiff=" + yDiff);
-		
 		// calculate 
-		var angleToFollow = toDegrees(Math.atan2(yDiff,xDiff));
+		return toDegrees(Math.atan2(yDiff,xDiff));
+	}
+	
+	this.goTo = function(coord) {
+		var angleToFollow = this.calcAngleToFollow(coord);
 		
 		// Rotation to follow correctly
 		var angleDiff = moduloAngle(angleToFollow - this.orientation);
@@ -246,6 +248,11 @@ function Drone(index){
 			}
 	};
 	
+	this.shoot = function(coord){
+		var angleToShoot = this.calcAngleToFollow(coord);
+		laserBolts.push(new LaserBolt(this.x, this.y, angleToShoot, this.speed+1, this.team));
+	}
+	
 	this.goPatrol = function(){
 		var dist = distance(this,patrolPoint);
 		if(dist>100){ 
@@ -265,15 +272,11 @@ function Drone(index){
 		var angleDiff = moduloAngle(angleToFollow - this.orientation);
 		
 		
-		//console.log(angleToFollow);
-		if(Math.abs(angleDiff)>5) {
-			////console.log("drone" + this.circle + ": patrol: circle: ROTATE");
+		if(Math.abs(angleDiff)>5) 
 			this.rotate(angleDiff>0);
-		}
-		else {
-			//console.log("drone" + this.circle + ": patrol: circle: TRANSLATE");
+		else 
 			this.translate(true);
-		}
+
 	}
 } 
 // see:  http://stackoverflow.com/questions/13040684/javascript-inheritance-object-create-vs-new
@@ -283,7 +286,7 @@ Drone.prototype = new Movable();
 
 // SPACESHIP
 spaceship.move = function(e){
-		//THIS FUNCTION IS TRAVERSED BY document.onkeydown!!! => "this" is not spaceship
+		//THIS FUNCTION IS TRAVERSED BY document.onkeydown!!! => "this" is not spaceship!
 		// inertia!
 		e = e || window.event;
 		switch(e.keyCode){
@@ -302,7 +305,7 @@ spaceship.move = function(e){
 				break;
 			case 32:
 				console.log('space');
-				laserBolts.push(new LaserBolt(spaceship.x,spaceship.y,spaceship.orientation));
+				laserBolts.push(new LaserBolt(spaceship.x,spaceship.y,spaceship.orientation, spaceship.speed+1, spaceship.team));
 				break;
 		}
 }

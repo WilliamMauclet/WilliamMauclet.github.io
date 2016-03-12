@@ -22,16 +22,16 @@ Things to program:
 | **Enemy** 							|					|
 | Structure 							|	-				|
 | Drones 								|	DONE			|
-| Fly circle patrol		 				|	-				|
+| Fly circle patrol		 				|	DONE			|
 | Are slower than spaceship 			|	DONE			|
-| Move and shoot towards spaceship 		|	1/2				|
+| Move and shoot towards spaceship 		|	DONE			|
 | **Collision**							|					|
 | If collision with spaceship: hit 		|	-				|
 | Rockets/Laser of structure: hit 		|	-				|
 | When hit: explosion animation 		| 	-				|
 | If player: Lives-- 					|	-				|
 | if Lives==0: Game over 				|	-				|
-| Radar 								|	-				|
+| **Radar**								|	-				|
 | zooming								|	-				|
 
 	
