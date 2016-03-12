@@ -19,12 +19,12 @@
 </head>
 <body>	
 <p id="firt" z-style="-1"></p>
-<img src="background.png" id="arena" alt="" height="600" width="900" style="position:absolute; top:0px; left:0px; z-index=-1">
-<img src="spaceship2.gif" id="spaceshipImg" height="32" width="32" style="position:absolute; top:35px; left:170px">
-<img src="droneLeft.gif" id="drone0" height="32" width="32" style="position:absolute; top:35px; left:170px">
-<img src="droneRight.gif" id="drone1" height="32" width="32" style="position:absolute; top:35px; left:170px">
-<img src="droneLeft.gif" id="drone2" height="32" width="32" style="position:absolute; top:35px; left:170px">
-<img src="droneRight.gif" id="drone3" height="32" width="32" style="position:absolute; top:35px; left:170px">
+<img src="img/background.png" id="arena" alt="" height="600" width="900" style="position:absolute; top:0px; left:0px; z-index=-1">
+<img src="img/spaceship2.gif" id="spaceshipImg" height="32" width="32" style="position:absolute; top:35px; left:170px">
+<img src="img/droneLeft.gif" id="drone0" height="32" width="32" style="position:absolute; top:35px; left:170px">
+<img src="img/droneRight.gif" id="drone1" height="32" width="32" style="position:absolute; top:35px; left:170px">
+<img src="img/droneLeft.gif" id="drone2" height="32" width="32" style="position:absolute; top:35px; left:170px">
+<img src="img/droneRight.gif" id="drone3" height="32" width="32" style="position:absolute; top:35px; left:170px">
 <!-- <img src="explosion.gif" id="exp" height="32" width="32" style="position:absolute; top:300px; left:300px"> -->
 <!-- TODO -->
 
@@ -100,7 +100,7 @@ function checkForCollisions(){
 			
 			// explosion.gif animation
 			var img = document.createElement("img");
-			img.src = "explosion.gif";
+			img.src = "img/explosion.gif";
 			var src = document.getElementById("firt");
 			src.appendChild(img);
 			
@@ -159,7 +159,7 @@ function Movable(x, y, orientation, speed, rotationSpeed, image, team) {
 // LASERBOLT
 function LaserBolt(x, y, direction, speed, team){
 	var img = document.createElement("img");
-	img.src = "explosion.gif";
+	img.src = "img/explosion.gif";
 	var src = document.getElementById("firt");
 	src.appendChild(img);
 	
