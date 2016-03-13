@@ -39,8 +39,8 @@
 <script>
 <!-----------------------------------------INITIALISATION----------------------------------------------------->
 // Do we need a constructor for spaceship? No!
-var TEAM_GOOD = "team_good",
-	TEAM_BAD = "team_bad";
+var TEAM_GOOD = "teamGood",
+	TEAM_BAD = "teamBad";
 var collidables = [];
 var spaceship = new Movable(500, 500, 0, 5, 15, document.getElementById("spaceshipImg"), TEAM_GOOD);
 var drones = [];
@@ -199,7 +199,7 @@ function Movable(x, y, orientation, speed, rotationSpeed, image, team) {
 // LASERBOLT
 function LaserBolt(x, y, direction, speed, team){
 	var img = document.createElement("img");
-		img.src = "img/"+ team + "_Laser.gif";
+		img.src = "img/"+ team + "Laser.gif";
 	var src = document.getElementById("firt");
 	src.appendChild(img);
 	
