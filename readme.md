@@ -33,5 +33,10 @@ Things to program:
 | if Lives==0: Game over 				|	-				|
 | **Radar**								|	-				|
 | zooming								|	-				|
+|---------------------------------------|:-----------------:|
+| squareStruct(point)					|	-				|
+| destroy struct						|	-				|
+| destroy connection/link				|	-				|	
+
 
 	

@@ -20,22 +20,29 @@
 <body>	
 <p id="firt" z-style="-1"></p>
 <img src="img/background.png" id="arena" alt="" height="600" width="900" style="position:absolute; top:0px; left:0px; z-index=-1">
-<img src="img/spaceship2.gif" id="spaceshipImg" height="32" width="32" style="position:absolute; top:35px; left:170px">
-<img src="img/droneLeft.gif" id="drone0" height="32" width="32" style="position:absolute; top:35px; left:170px">
-<img src="img/droneRight.gif" id="drone1" height="32" width="32" style="position:absolute; top:35px; left:170px">
-<img src="img/droneLeft.gif" id="drone2" height="32" width="32" style="position:absolute; top:35px; left:170px">
-<img src="img/droneRight.gif" id="drone3" height="32" width="32" style="position:absolute; top:35px; left:170px">
-<!-- <img src="explosion.gif" id="exp" height="32" width="32" style="position:absolute; top:300px; left:300px"> -->
-<!-- TODO -->
+<img src="img/spaceship2.gif" id="spaceshipImg" height="32" width="32" style="position:absolute; top:35px; left:170px; z-index=1">
+<img src="img/droneLeft.gif" id="drone0" height="32" width="32" style="position:absolute; top:35px; left:170px; z-index=1">
+<img src="img/droneRight.gif" id="drone1" height="32" width="32" style="position:absolute; top:35px; left:170px; z-index=1">
+<img src="img/droneLeft.gif" id="drone2" height="32" width="32" style="position:absolute; top:35px; left:170px; z-index=1">
+<img src="img/droneRight.gif" id="drone3" height="32" width="32" style="position:absolute; top:35px; left:170px; z-index=1">
+<!-- counterclockwise, starting upper-left -->
+<img src="img/structure.gif" id="struct0" height="32" width="32" style="position:absolute; top:-16px; left:-16px; z-index=1">
+<img src="img/connection.png" id="link0" height="32" width="32" style="position:absolute; top:0px; left:-16px; z-index=1">
+<img src="img/structure.gif" id="struct1" height="32" width="32" style="position:absolute; top:16px; left:-16px; z-index=1">
+<img src="img/connection.png" id="link1" height="32" width="32" style="position:absolute; top:16px; left:0px; z-index=1">
+<img src="img/structure.gif" id="struct2" height="32" width="32" style="position:absolute; top:16px; left:16px; z-index=1">
+<img src="img/connection.png" id="link2" height="32" width="32" style="position:absolute; top:0px; left:16px; z-index=1">
+<img src="img/structure.gif" id="struct3" height="32" width="32" style="position:absolute; top:-16px; left:16px; z-index=1">
+<img src="img/connection.png" id="link3" height="32" width="32" style="position:absolute; top:-16px; left:0px; z-index=1">
 
 
 <script>
 <!-----------------------------------------INITIALISATION----------------------------------------------------->
 // Do we need a constructor for spaceship? No!
-var TEAM_GOOD = "Team good",
-	TEAM_BAD = "Team bad";
+var TEAM_GOOD = "team_good",
+	TEAM_BAD = "team_bad";
 var collidables = [];
-var spaceship = new Movable(500, 500, 0, 4, 15, document.getElementById("spaceshipImg"), TEAM_GOOD);
+var spaceship = new Movable(500, 500, 0, 5, 15, document.getElementById("spaceshipImg"), TEAM_GOOD);
 var drones = [];
 for(i = 0; i < 4; i++)
 	drones.push(new Drone(i));
@@ -56,7 +63,10 @@ function init(){
 	for(ix in drones)
 		drones[ix].redraw();
 	spaceship.redraw();
-}
+	
+	placeStructure(patrolPoint.x,patrolPoint.y);
+	
+}	
 
 function gameLoop(){
 	
@@ -65,6 +75,8 @@ function gameLoop(){
 	//document.getElementById("arena").style.visibility="hidden";
 	
 	document.onkeydown = spaceship.move; 
+	
+	// TODO: list of Automatons!!!!
 	for(xyx in drones)
 		drones[xyx].move();	
 	for(xyx in laserBolts)
@@ -111,6 +123,23 @@ function checkForCollisions(){
 		}
 	}
 }
+
+function placeStructure(xCo, yCo){
+	for(ind = 0; ind<4; ind++){
+		// structure
+		var img = document.getElementById("struct"+ind);
+		img.style.top = xCo + parseInt(img.style.top) + "px";
+		img.style.left = yCo + parseInt(img.style.left) + "px";
+		console.log(img);
+		// connection
+		img = document.getElementById("link"+ind);
+		img.style.top =xCo + parseInt(img.style.top) + "px";
+		img.style.left = yCo + parseInt(img.style.left) + "px";
+	}
+	//rotate connections
+	rotateImage(document.getElementById("link1"), 90);
+	rotateImage(document.getElementById("link3"), 90);
+}
 <!------------------------------------------GAME FUNCTIONS---------------------------------------------------->
 
 
@@ -154,12 +183,23 @@ function Movable(x, y, orientation, speed, rotationSpeed, image, team) {
 		//hide image
 		this.image.style.visibility = "hidden";
 	};
+	
+	this.lastShotTime = 0;
+	this.shootInterval = 1; //seconds
+	this.tryShoot = function(shootFunc){
+		var now = Date.now()/1000;
+		if(this.lastShotTime+this.shootInterval < now){
+			console.log("'now'=" + now);
+			this.lastShotTime = now;
+			shootFunc();
+		}
+	}
 }
 
 // LASERBOLT
 function LaserBolt(x, y, direction, speed, team){
 	var img = document.createElement("img");
-	img.src = "img/explosion.gif";
+		img.src = "img/"+ team + "_Laser.gif";
 	var src = document.getElementById("firt");
 	src.appendChild(img);
 	
@@ -176,8 +216,8 @@ function LaserBolt(x, y, direction, speed, team){
 			document.getElementById("firt").removeChild(img);
 			//remove from laserBolts
 			laserBolts.splice(laserBolts.indexOf(this),1);
-			//delete this => automatic
-			
+			// remove from collidables
+			collidables.splice(collidables.indexOf(this),1);
 		}
 		else { 
 			this.translate(true);
@@ -196,7 +236,7 @@ function Rocket(){
 // DRONE
 function Drone(index){
 	// constructor for drone
-	Movable.call(this, index*30, index*120, 0, 2, 5,  document.getElementById("drone"+index), TEAM_BAD);
+	Movable.call(this, index*30, index*120, 0, 1, 5,  document.getElementById("drone"+index), TEAM_BAD);
 	
 	this.mew = function(){
 		//console.log(this.x);
@@ -206,11 +246,28 @@ function Drone(index){
 		if(this.spaceshipInSight()){//chase
 			//console.log("drone: go to spaceship");
 			this.goTo(spaceship);
-			this.shoot(spaceship);
+			// create function to shoot ship
+			
+			var angleL = this.calcAngleToFollow(spaceship),
+					xL = this.x,
+					yL = this.y,
+					speedL = this.speed+1,
+					teamL = this.team;
+			var shootShip = function(){
+				//laserBolts.push(new LaserBolt(this.x, this.y, angleToShoot, this.speed+1, this.team));
+				laserBolts.push(new LaserBolt(xL, yL, angleL, speedL, teamL));
+			}
+			
+			this.tryShoot(shootShip);
 		}
 		else // patrol 
 			this.goPatrol();
 	}; 
+	
+	this.shootSpaceship = function(){
+		var angleToShoot = this.calcAngleToFollow(spaceship);
+		laserBolts.push(new LaserBolt(this.x, this.y, angleToShoot, this.speed+1, this.team));
+	};
 	
 	this.spaceshipInSight = function(){
 		var lineOfSight = 175;
@@ -224,7 +281,7 @@ function Drone(index){
 		
 		// calculate 
 		return toDegrees(Math.atan2(yDiff,xDiff));
-	}
+	};
 	
 	this.goTo = function(coord) {
 		var angleToFollow = this.calcAngleToFollow(coord);
@@ -251,7 +308,7 @@ function Drone(index){
 	this.shoot = function(coord){
 		var angleToShoot = this.calcAngleToFollow(coord);
 		laserBolts.push(new LaserBolt(this.x, this.y, angleToShoot, this.speed+1, this.team));
-	}
+	};
 	
 	this.goPatrol = function(){
 		var dist = distance(this,patrolPoint);
@@ -277,7 +334,7 @@ function Drone(index){
 		else 
 			this.translate(true);
 
-	}
+	};
 } 
 // see:  http://stackoverflow.com/questions/13040684/javascript-inheritance-object-create-vs-new
 // necessary for inheritance => without it:
@@ -305,9 +362,13 @@ spaceship.move = function(e){
 				break;
 			case 32:
 				console.log('space');
-				laserBolts.push(new LaserBolt(spaceship.x,spaceship.y,spaceship.orientation, spaceship.speed+1, spaceship.team));
+				spaceship.tryShoot(spaceship.shoot);
 				break;
 		}
+}
+
+spaceship.shoot = function(){
+	laserBolts.push(new LaserBolt(spaceship.x,spaceship.y,spaceship.orientation, spaceship.speed+1, spaceship.team));
 }
 
 spaceship.disappear = function(){
@@ -317,6 +378,7 @@ spaceship.disappear = function(){
 	this.image.style.visibility = "hidden";
 	gameOver = true;
 }
+spaceship.shootInterval = 0.25;
 <!------------------------------------------PROTOTYPES----------------------------------------------------->
 
 
