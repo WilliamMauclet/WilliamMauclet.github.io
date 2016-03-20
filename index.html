@@ -41,7 +41,7 @@
 // Do we need a constructor for spaceship? No!
 var TEAM_GOOD = "teamGood",
 	TEAM_BAD = "teamBad";
-var collidables = [];
+var pieces = [];
 var spaceship = new Movable(500, 500, 0, 5, 15, document.getElementById("spaceshipImg"), TEAM_GOOD);
 var drones = [];
 for(i = 0; i < 4; i++)
@@ -77,10 +77,9 @@ function gameLoop(){
 	document.onkeydown = spaceship.move; 
 	
 	// TODO: list of Automatons!!!!
-	for(xyx in drones)
-		drones[xyx].move();	
-	for(xyx in laserBolts)
-		laserBolts[xyx].move();
+	for(xyx in pieces)
+		if(xyx != 0)
+			pieces[xyx].move();	
 	
 	checkForCollisions();
 	
@@ -93,22 +92,22 @@ init();
 setTimeout("gameLoop()", 1);	
 
 function checkForCollisions(){
-	for(coll1 in collidables){
-		for(coll2 = parseInt(coll1)+1; coll2<collidables.length; coll2++){
+	for(coll1 in pieces){
+		for(coll2 = parseInt(coll1)+1; coll2<pieces.length; coll2++){
 		
-			if(distance(collidables[coll1], collidables[coll2]) > 10)
+			if(distance(pieces[coll1], pieces[coll2]) > 10)
 				continue;
-			if(collidables[coll1].team == collidables[coll2].team)
+			if(pieces[coll1].team == pieces[coll2].team)
 				continue;
 			
-			var xC = collidables[coll1].x,
-				yC = collidables[coll1].y;
+			var xC = pieces[coll1].x,
+				yC = pieces[coll1].y;
 							
 			// delete collided
-			collidables[coll1].disappear();			
+			pieces[coll1].disappear();			
 			if(coll1<coll2)
 				coll2--;
-			collidables[coll2].disappear();
+			pieces[coll2].disappear();
 			
 			// explosion.gif animation
 			var img = document.createElement("img");
@@ -152,9 +151,9 @@ function Movable(x, y, orientation, speed, rotationSpeed, image, team) {
 	this.speed = Math.abs(speed);
 	this.rotationSpeed = Math.abs(rotationSpeed);
 	this.image = image;
-	// Add to collidables
+	// Add to pieces
 	if(arguments.length>=2) //2 for x & y
-		collidables.push(this);
+		pieces.push(this);
 	this.team = team;
 	
 	
@@ -178,8 +177,8 @@ function Movable(x, y, orientation, speed, rotationSpeed, image, team) {
 	};
 	// destructor
 	this.disappear = function(){
-		//remove from collidables
-		collidables.splice(collidables.indexOf(this),1);
+		//remove from pieces
+		pieces.splice(pieces.indexOf(this),1);
 		//hide image
 		this.image.style.visibility = "hidden";
 	};
@@ -216,8 +215,8 @@ function LaserBolt(x, y, direction, speed, team){
 			document.getElementById("firt").removeChild(img);
 			//remove from laserBolts
 			laserBolts.splice(laserBolts.indexOf(this),1);
-			// remove from collidables
-			collidables.splice(collidables.indexOf(this),1);
+			// remove from pieces
+			pieces.splice(pieces.indexOf(this),1);
 		}
 		else { 
 			this.translate(true);
@@ -372,8 +371,8 @@ spaceship.shoot = function(){
 }
 
 spaceship.disappear = function(){
-	//remove from collidables
-	collidables.splice(collidables.indexOf(this),1);
+	//remove from pieces
+	pieces.splice(pieces.indexOf(this),1);
 	//hide image
 	this.image.style.visibility = "hidden";
 	gameOver = true;
