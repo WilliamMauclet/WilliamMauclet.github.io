@@ -43,7 +43,7 @@
 var TEAM_GOOD = "teamGood",
 	TEAM_BAD = "teamBad";
 var pieces = [];
-var spaceship = new Movable(5, 500, 500, 0, 5, 15, document.getElementById("spaceshipImg"), TEAM_GOOD);
+var spaceship = new Movable(5, 500, 500, 0, 3, 10, document.getElementById("spaceshipImg"), TEAM_GOOD);
 var drones = [];
 for(i = 0; i < 4; i++)
 	drones.push(new Drone(i));
@@ -55,6 +55,9 @@ var patrolPoint = {
 	y: 300
 }
 var gameOver = false;
+
+document.addEventListener("keydown", keyDownHandler, false);
+document.addEventListener("keyup", keyUpHandler, false);
 <!------------------------------------------INITIALISATION----------------------------------------------------->
 
 
@@ -79,7 +82,7 @@ function gameLoop(){
 	
 	// TODO: list of Automatons!!!!
 	for(xyx in pieces)
-		if(xyx != 0)
+		//if(xyx != 0)
 			pieces[xyx].move();	
 	
 	checkForCollisions();
@@ -248,11 +251,7 @@ function Rocket(){
 function Drone(index){
 	// constructor for drone
 	Movable.call(this, 2, index*30, index*120, 0, 1, 5,  document.getElementById("drone"+index), TEAM_BAD);
-	
-	this.mew = function(){
-		//console.log(this.x);
-	};
-		
+    		
 	this.move = function(){	
 		if(this.spaceshipInSight()){//chase
 			//console.log("drone: go to spaceship");
@@ -353,29 +352,64 @@ function Drone(index){
 Drone.prototype = new Movable();
 
 // SPACESHIP
-spaceship.move = function(e){
-		//THIS FUNCTION IS TRAVERSED BY document.onkeydown!!! => "this" is not spaceship!
-		// inertia!
-		e = e || window.event;
-		switch(e.keyCode){
+var rightPressed,
+	leftPressed,
+	downPressed,
+	upPressed,
+	spacePressed;
+	
+function keyDownHandler(e) {
+	switch(e.keyCode){
 			case 38: 
-				//forward
-				spaceship.translate(true);
+				upPressed = true;
 				break;
-			case 40: // backward
-				spaceship.translate(false);
+			case 40: 				
+				downPressed = true;			
 				break;
-			case 37: // turn left
-				spaceship.rotate(true);
+			case 37:
+				leftPressed = true;
 				break;
-			case 39: // turn right
-				spaceship.rotate(false);
+			case 39:
+				rightPressed = true;
 				break;
 			case 32:
-				console.log('space');
-				spaceship.tryShoot(spaceship.shoot);
+				spacePressed = true;
 				break;
-		}
+	}
+}
+
+function keyUpHandler(e) {
+	switch(e.keyCode){
+			case 38: 
+				upPressed = false;
+				break;
+			case 40: 				
+				downPressed = false;			
+				break;
+			case 37:
+				leftPressed = false;
+				break;
+			case 39:
+				rightPressed = false;
+				break;
+			case 32:
+				spacePressed = false;
+				break;
+	}
+}
+
+spaceship.move = function(){
+	// TODO inertia!
+	if(upPressed) //forward
+		spaceship.translate(true);
+	if(downPressed) //backward
+		spaceship.translate(false);
+	if(leftPressed) //left
+		spaceship.rotate(true);
+	if(rightPressed) //right
+		spaceship.rotate(false);
+	if(spacePressed)
+		spaceship.shoot();
 }
 
 spaceship.shoot = function(){
