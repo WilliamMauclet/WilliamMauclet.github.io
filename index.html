@@ -43,8 +43,9 @@
 var TEAM_GOOD = "teamGood",
 	TEAM_BAD = "teamBad";
 var pieces = [];
-var spaceship = new Movable(5, 500, 500, 0, 3, 10, document.getElementById("spaceshipImg"), TEAM_GOOD);
+var spaceship = new Movable(5, 500, 500, 0, 3, 5, document.getElementById("spaceshipImg"), TEAM_GOOD);
 var drones = [];
+var explosionImgs = [];
 for(i = 0; i < 4; i++)
 	drones.push(new Drone(i));
 
@@ -68,6 +69,7 @@ function init(){
 		drones[ix].redraw();
 	spaceship.redraw();
 	
+	//place structures
 	placeStructure(patrolPoint.x,patrolPoint.y);
 	
 }	
@@ -78,14 +80,14 @@ function gameLoop(){
 	
 	//document.getElementById("arena").style.visibility="hidden";
 	
-	document.onkeydown = spaceship.move; 
+	//document.onkeydown = spaceship.move; 
 	
 	// TODO: list of Automatons!!!!
 	for(xyx in pieces)
-		//if(xyx != 0)
-			pieces[xyx].move();	
+		pieces[xyx].move();
 	
 	checkForCollisions();
+	verifyExplosionImgs();
 	
 	if(!gameOver)
 		requestAnimationFrame(gameLoop);		
@@ -94,7 +96,20 @@ function gameLoop(){
 		console.log("GAME OVER");
 }
 init();
-setTimeout("gameLoop()", 1);	
+setTimeout("gameLoop()", 1);
+
+function verifyExplosionImgs() {
+	var expImg;
+	for(xyx in explosionImgs){
+		expImg = explosionImgs[xyx];
+		var expLife = parseInt(expImg.life);
+		expImg.life = --expLife;
+		if(expLife==0){
+			expImg.style.visibility = "hidden";
+			explosionImgs.splice(explosionImgs.indexOf(expImg),1);
+		}
+	}
+}	
 
 function checkForCollisions(){
 	for(coll1 in pieces){
@@ -125,22 +140,31 @@ function checkForCollisions(){
 			img.style="position:absolute";
 			img.style.top=xC + "px";
 			img.style.left=yC + "px";
+			
+			img.life = "50";
+			explosionImgs.push(img);
 		}
 	}
 }
 
 function placeStructure(xCo, yCo){
 	//TODO Movable with speeds = 0 & shooting rockets
+	
 	for(ind = 0; ind<4; ind++){
+		var struc;
 		// structure
 		var img = document.getElementById("struct"+ind);
+		
 		img.style.top = xCo + parseInt(img.style.top) + "px";
 		img.style.left = yCo + parseInt(img.style.left) + "px";
-		console.log(img);
+		struc = new Movable(3, parseInt(img.style.top.substring(0, img.style.top.length-2)), parseInt(img.style.left.substring(0, img.style.left.length-2)), 0, 0, 0, img, TEAM_BAD);
+		struc.move  = function(){}
 		// connection
 		img = document.getElementById("link"+ind);
 		img.style.top =xCo + parseInt(img.style.top) + "px";
 		img.style.left = yCo + parseInt(img.style.left) + "px";
+		struc = new Movable(2, parseInt(img.style.top.substring(0, img.style.top.length-2)), parseInt(img.style.left.substring(0, img.style.left.length-2)), 0, 0, 0, img, TEAM_BAD);
+		struc.move  = function(){}
 	}
 	//rotate connections
 	rotateImage(document.getElementById("link1"), 90);
@@ -160,7 +184,7 @@ function Movable(lives, x, y, orientation, speed, rotationSpeed, image, team) {
 	this.rotationSpeed = Math.abs(rotationSpeed);
 	this.image = image;
 	// Add to pieces
-	if(arguments.length>=2) //2 for x & y
+	if(arguments.length>=2) //2 for x & y, so as not to add e.g. "Drone.prototype = new Movable()"
 		pieces.push(this);
 	this.team = team;
 	
@@ -199,7 +223,7 @@ function Movable(lives, x, y, orientation, speed, rotationSpeed, image, team) {
 	};
 	
 	this.lastShotTime = 0;
-	this.shootInterval = 1; //seconds
+	this.shootInterval = 1.5; //seconds
 	this.tryShoot = function(shootFunc){
 		var now = Date.now()/1000;
 		if(this.lastShotTime+this.shootInterval < now){
@@ -399,7 +423,7 @@ function keyUpHandler(e) {
 }
 
 spaceship.move = function(){
-	// TODO inertia!
+	// TODO inertia! 
 	if(upPressed) //forward
 		spaceship.translate(true);
 	if(downPressed) //backward
@@ -409,7 +433,7 @@ spaceship.move = function(){
 	if(rightPressed) //right
 		spaceship.rotate(false);
 	if(spacePressed)
-		spaceship.shoot();
+		spaceship.tryShoot(spaceship.shoot);
 }
 
 spaceship.shoot = function(){
