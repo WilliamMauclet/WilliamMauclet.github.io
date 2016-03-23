@@ -7,33 +7,47 @@
 	<!-- Basic styling, centering the canvas -->
 	<style>
 	canvas {
+		padding-left: 0;
+		padding-right: 0;
+		margin-left: auto;
+		margin-right: auto;
 		display: block;
+		width: 800px;
+		
+		<!-- display: block;
 		position: absolute;
 		margin: auto;
 		top: 0;
 		bottom: 0;
 		left: 0;
-		right: 0;
+		right: 0; -->
 	}
 	</style>
 </head>
 <body>	
 <p id="firt" z-style="-1"></p>
+<img src="img/startScreen.gif" id="startScreen" alt="" height="600" width="900" style="position:absolute; top:0px; left:0px; z-index=2">
 <img src="img/background.png" id="arena" alt="" height="600" width="900" style="position:absolute; top:0px; left:0px; z-index=-1">
-<img src="img/spaceship2.gif" id="spaceshipImg" height="32" width="32" style="position:absolute; top:35px; left:170px; z-index=1">
-<img src="img/droneLeft.gif" id="drone0" height="32" width="32" style="position:absolute; top:35px; left:170px; z-index=1">
-<img src="img/droneRight.gif" id="drone1" height="32" width="32" style="position:absolute; top:35px; left:170px; z-index=1">
-<img src="img/droneLeft.gif" id="drone2" height="32" width="32" style="position:absolute; top:35px; left:170px; z-index=1">
-<img src="img/droneRight.gif" id="drone3" height="32" width="32" style="position:absolute; top:35px; left:170px; z-index=1">
+<img src="img/spaceship2.gif" id="spaceshipImg" style="position:absolute; top:35px; left:170px; z-index=1">
+<img src="img/droneLeft.gif" id="drone0"  style="position:absolute; top:35px; left:170px; z-index=1">
+<img src="img/droneRight.gif" id="drone1" style="position:absolute; top:35px; left:170px; z-index=1">
+<img src="img/droneLeft.gif" id="drone2"  style="position:absolute; top:35px; left:170px; z-index=1">
+<img src="img/droneRight.gif" id="drone3" style="position:absolute; top:35px; left:170px; z-index=1">
 <!-- counterclockwise, starting upper-left -->
-<img src="img/structure.gif" id="struct0" height="32" width="32" style="position:absolute; top:-16px; left:-16px; z-index=1">
-<img src="img/connection.png" id="link0" height="32" width="32" style="position:absolute; top:0px; left:-16px; z-index=1">
-<img src="img/structure.gif" id="struct1" height="32" width="32" style="position:absolute; top:16px; left:-16px; z-index=1">
-<img src="img/connection.png" id="link1" height="32" width="32" style="position:absolute; top:16px; left:0px; z-index=1">
-<img src="img/structure.gif" id="struct2" height="32" width="32" style="position:absolute; top:16px; left:16px; z-index=1">
-<img src="img/connection.png" id="link2" height="32" width="32" style="position:absolute; top:0px; left:16px; z-index=1">
-<img src="img/structure.gif" id="struct3" height="32" width="32" style="position:absolute; top:-16px; left:16px; z-index=1">
-<img src="img/connection.png" id="link3" height="32" width="32" style="position:absolute; top:-16px; left:0px; z-index=1">
+<img src="img/structure.gif" id="struct0" style="position:absolute; top:-16px; left:-16px; z-index=1">
+<img src="img/connection.png" id="link0" style="position:absolute; top:0px; left:-16px; z-index=1">
+<img src="img/structure.gif" id="struct1" style="position:absolute; top:16px; left:-16px; z-index=1">
+<img src="img/connection.png" id="link1" style="position:absolute; top:16px; left:0px; z-index=1">
+<img src="img/structure.gif" id="struct2" style="position:absolute; top:16px; left:16px; z-index=1">
+<img src="img/connection.png" id="link2" style="position:absolute; top:0px; left:16px; z-index=1">
+<img src="img/structure.gif" id="struct3" style="position:absolute; top:-16px; left:16px; z-index=1">
+<img src="img/connection.png" id="link3" style="position:absolute; top:-16px; left:0px; z-index=1">
+
+<img src="img/heart.png" id="heart0">
+<img src="img/heart.png" id="heart1">
+<img src="img/heart.png" id="heart2">
+<img src="img/heart.png" id="heart3">
+<img src="img/heart.png" id="heart4">
 
 
 <script>
@@ -54,7 +68,7 @@ var laserBolts = [];
 var patrolPoint = {
 	x: 300,
 	y: 300
-}
+}	
 var gameOver = false;
 
 document.addEventListener("keydown", keyDownHandler, false);
@@ -64,6 +78,7 @@ document.addEventListener("keyup", keyUpHandler, false);
 
 <!-----------------------------------------GAME FUNCTIONS------------------------------------------------------>
 function init(){
+	console.log("init");
 	var ix;
 	for(ix in drones)
 		drones[ix].redraw();
@@ -72,11 +87,17 @@ function init(){
 	//place structures
 	placeStructure(patrolPoint.x,patrolPoint.y);
 	
+	// show start screen and wait for pressed key
+	document.onkeydown = undefined;
+	document.getElementById("startScreen").style.visibility = "hidden";
+	setTimeout("gameLoop()", 1);
 }	
 
 function gameLoop(){
-	
 	document.getElementById("arena").style.zIndex="-1";	
+	
+	
+	
 	
 	//document.getElementById("arena").style.visibility="hidden";
 	
@@ -95,8 +116,10 @@ function gameLoop(){
 	else
 		console.log("GAME OVER");
 }
-init();
-setTimeout("gameLoop()", 1);
+document.getElementById("startScreen").style.zIndex="5";
+document.onkeydown = init;
+//init
+//setTimeout("gameLoop()", 1);
 
 function verifyExplosionImgs() {
 	var expImg;
@@ -210,6 +233,8 @@ function Movable(lives, x, y, orientation, speed, rotationSpeed, image, team) {
 	
 	this.hit = function(){
 		this.lives--;
+		if(this == spaceship)
+			document.getElementById("heart"+this.lives).style.visibility = "hidden";
 		if(this.lives==0)
 			this.disappear();
 	};
@@ -224,7 +249,7 @@ function Movable(lives, x, y, orientation, speed, rotationSpeed, image, team) {
 	
 	this.lastShotTime = 0;
 	this.shootInterval = 1.5; //seconds
-	this.tryShoot = function(shootFunc){
+	this.tryShoot = function(shootFunc){ // maybe also give shootInterval as parameter
 		var now = Date.now()/1000;
 		if(this.lastShotTime+this.shootInterval < now){
 			console.log("'now'=" + now);
