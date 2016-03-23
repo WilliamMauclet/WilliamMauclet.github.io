@@ -26,8 +26,12 @@
 </head>
 <body>	
 <p id="firt" z-style="-1"></p>
-<img src="img/startScreen.gif" id="startScreen" alt="" height="600" width="900" style="position:absolute; top:0px; left:0px; z-index=2">
+<!-- SCREENS -->
+<img src="img/startScreen4.gif" id="startScreen" alt="" height="600" width="900" style="position:absolute; top:0px; left:0px; z-index=2">
+<img src="img/gameOver.gif" id="gameOverScreen" alt="" height="600" width="900" style="position:absolute; top:0px; left:0px; visibility:hidden; z-index=2">
+<img src="img/victory.gif" id="victoryScreen" alt="" height="600" width="900" style="position:absolute; top:0px; left:0px; visibility:hidden; z-index=2">
 <img src="img/background.png" id="arena" alt="" height="600" width="900" style="position:absolute; top:0px; left:0px; z-index=-1">
+<!-- PIECES-->
 <img src="img/spaceship2.gif" id="spaceshipImg" style="position:absolute; top:35px; left:170px; z-index=1">
 <img src="img/droneLeft.gif" id="drone0"  style="position:absolute; top:35px; left:170px; z-index=1">
 <img src="img/droneRight.gif" id="drone1" style="position:absolute; top:35px; left:170px; z-index=1">
@@ -60,6 +64,7 @@ var pieces = [];
 var spaceship = new Movable(5, 500, 500, 0, 3, 5, document.getElementById("spaceshipImg"), TEAM_GOOD);
 var drones = [];
 var explosionImgs = [];
+var enemies = 0;
 for(i = 0; i < 4; i++)
 	drones.push(new Drone(i));
 
@@ -110,13 +115,17 @@ function gameLoop(){
 	checkForCollisions();
 	verifyExplosionImgs();
 	
-	if(!gameOver)
-		requestAnimationFrame(gameLoop);		
-//setTimeout("gameLoop()",0.1);	
+	// TODO check for victory : pieces.contains(TEAM_BAD)
+	if(enemies==0)
+		document.getElementById("victoryScreen").style.visibility = "visible";
+	else if(!gameOver)
+		requestAnimationFrame(gameLoop);
 	else
-		console.log("GAME OVER");
+		document.getElementById("gameOverScreen").style.visibility = "visible";
 }
 document.getElementById("startScreen").style.zIndex="5";
+document.getElementById("gameOverScreen").style.zIndex="5";
+document.getElementById("victoryScreen").style.zIndex="5";
 document.onkeydown = init;
 //init
 //setTimeout("gameLoop()", 1);
@@ -207,8 +216,11 @@ function Movable(lives, x, y, orientation, speed, rotationSpeed, image, team) {
 	this.rotationSpeed = Math.abs(rotationSpeed);
 	this.image = image;
 	// Add to pieces
-	if(arguments.length>=2) //2 for x & y, so as not to add e.g. "Drone.prototype = new Movable()"
+	if(arguments.length>=2) {//2 for x & y, so as not to add e.g. "Drone.prototype = new Movable()"
 		pieces.push(this);
+		if(team == TEAM_BAD)
+			enemies++;
+	}
 	this.team = team;
 	
 	
@@ -241,10 +253,13 @@ function Movable(lives, x, y, orientation, speed, rotationSpeed, image, team) {
 	
 	// destructor
 	this.disappear = function(){
-		//remove from pieces
+		// remove from pieces
 		pieces.splice(pieces.indexOf(this),1);
-		//hide image
+		// hide image
 		this.image.style.visibility = "hidden";
+		// decrement enemies count
+		if(this.team == TEAM_BAD)
+			enemies--;
 	};
 	
 	this.lastShotTime = 0;

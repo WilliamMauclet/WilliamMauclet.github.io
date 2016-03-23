@@ -7,7 +7,11 @@ destroy enemy drones and alien structures with laser bolts. The alien
 structures can shoot rockets and are modular (can be destroyed rocket-
 sending piece by piece). 
 
-This project is open source. Special thanks to www.piskelapp.com (see also github.com/juliandescottes/piskel). 
+This project is open source. Special thanks to:
+- piskelapp.com (see also github.com/juliandescottes/piskel). 
+- gifcreator.me
+- ezgif.com
+
 
 Things to program:
 
