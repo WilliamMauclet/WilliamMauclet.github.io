@@ -1,0 +1,7 @@
+#img {
+    background-image: url(test.png);
+    background-repeat: no-repeat;
+    background-position: -300px -30px;
+    width: 200px;
+    height: 200px;
+}
