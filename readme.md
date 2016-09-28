@@ -12,6 +12,7 @@ This project is open source. Special thanks to:
 - gifcreator.me
 - ezgif.com
 
+To play, go to: ReferenceError: Can't find variable: http://williammauclet.github.io/
 
 Things to program:
 
