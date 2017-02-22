@@ -8,7 +8,7 @@ structures can shoot rockets and are modular (can be destroyed rocket-
 sending piece by piece). 
 
 This project is open source. Special thanks to:
-- piskelapp.com (see also github.com/juliandescottes/piskel). 
+- piskelapp.com (see also http://github.com/juliandescottes/piskel). 
 - gifcreator.me
 - ezgif.com
 
